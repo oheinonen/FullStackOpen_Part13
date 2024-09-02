@@ -2,8 +2,12 @@ const router = require('express').Router()
 
 const { Blog } = require('../models')
 
-const blogFinder = async (req, _res, next) => {
-  req.blog = await Blog.findByPk(req.params.id)
+const blogFinder = async (req, res, next) => {
+  const blog = await Blog.findByPk(req.params.id)
+  if (!blog) {
+    return res.status(404).json({ error: 'Blog not found' })
+  }
+  req.blog = blog
   next()
 }
 
@@ -13,37 +17,22 @@ router.get('/', async (req, res) => {
 })
 
 router.post('/', async (req, res) => {
-  try {
-    const blog = await Blog.create(req.body)
-    return res.json(blog)
-  } catch (error) {
-    return res.status(400).json({ error })
-  }
+  const blog = await Blog.create(req.body)
+  res.json(blog)
 })
 
 router.put('/:id', blogFinder, async (req, res) => {
-  if (req.blog) {
-    req.blog.likes = req.body.likes
-    const updatedBlog = await req.blog.save()
-    res.json(updatedBlog)
-  } else {
-    res.status(404).json({ error: 'Blog not found' })
+  if (!req.body.likes) {
+    return res.status(400).json({ error: 'Likes field is required' })
   }
-})
-router.delete('/:id', blogFinder, async (req, res) => {
-  if (req.blog) {
-    const deletedBlog = await req.blog.destroy()
-    if (deletedBlog) {
-      res.status(204).end()
-    } else {
-      res.status(404).json({ error: 'Blog not found' })
-    }
-  } else {
-    res.status(404).json({ error: 'Blog not found' })
-  }
+  req.blog.likes = req.body.likes
+  const updatedBlog = await req.blog.save()
+  res.json(updatedBlog)
 })
 
+router.delete('/:id', blogFinder, async (req, res) => {
+  await req.blog.destroy()
+  res.status(204).end()
+})
 
 module.exports = router
-
-
