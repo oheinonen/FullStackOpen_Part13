@@ -21,6 +21,15 @@ router.post('/', async (req, res) => {
   }
 })
 
+router.put('/:id', blogFinder, async (req, res) => {
+  if (req.blog) {
+    req.blog.likes = req.body.likes
+    const updatedBlog = await req.blog.save()
+    res.json(updatedBlog)
+  } else {
+    res.status(404).json({ error: 'Blog not found' })
+  }
+})
 router.delete('/:id', blogFinder, async (req, res) => {
   if (req.blog) {
     const deletedBlog = await req.blog.destroy()
