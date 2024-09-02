@@ -1,5 +1,5 @@
-const { Blog } = require('./models/blog.js');
-const { sequelize } = require('./database.js');
+const { Blog } = require('./models');
+const { sequelize } = require('./util/db.js');
 
 async function listBlogs() {
   try {

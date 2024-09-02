@@ -1,4 +1,4 @@
-const { sequelize } = require('../database');
+const { sequelize } = require('../util/db');
 const { Model, DataTypes } = require('sequelize');
 
 require('dotenv').config()
@@ -36,4 +36,4 @@ Blog.init({
   modelName: 'blog'
 })
 
-module.exports = { Blog }
+module.exports = Blog 
