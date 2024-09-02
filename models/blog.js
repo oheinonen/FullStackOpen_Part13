@@ -1,11 +1,9 @@
-import { sequelize } from '../index.js'
+const { sequelize } = require('../database');
+const { Model, DataTypes } = require('sequelize');
 
-import dotenv from 'dotenv'
-dotenv.config()
+require('dotenv').config()
 
-import { Model, DataTypes } from 'sequelize'
-
-export class Blog extends Model { }
+class Blog extends Model { }
 
 
 Blog.init({
@@ -37,3 +35,5 @@ Blog.init({
   timestamps: false,
   modelName: 'blog'
 })
+
+module.exports = { Blog }

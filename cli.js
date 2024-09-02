@@ -1,5 +1,5 @@
-import { Blog } from './models/blog.js'
-import { sequelize } from './index.js';
+const { Blog } = require('./models/blog.js');
+const { sequelize } = require('./database.js');
 
 async function listBlogs() {
   try {
