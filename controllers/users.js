@@ -12,6 +12,14 @@ router.post('/', async (req, res) => {
     const user = await User.create(req.body)
     res.json(user)
   } catch (error) {
+    if (error.name === 'SequelizeValidationError') {
+      const validationErrors = error.errors.map(err => ({
+        field: err.path,
+        message: err.message
+      }))
+      return res.status(400).json({ error: 'Validation error', details: validationErrors })
+    }
+
     return res.status(400).json({ error })
   }
 })
