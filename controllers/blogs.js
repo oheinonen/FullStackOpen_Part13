@@ -22,22 +22,32 @@ const tokenExtractor = (req, res, next) => {
       req.decodedToken = jwt.verify(authorization.substring(7), SECRET)
     } catch (error) {
       console.log(error)
-      return res.status(401).json({ error: 'Invalid token' })
     }
-  } else {
-    return res.status(401).json({ error: 'Missing token' })
   }
   next()
 }
+const authChecker = async (req, res, next) => {
+  if (!req.decodedToken) {
+    return res.status(401).json({ error: 'Token missing or invalid' })
+  }
+
+  const user = await User.findByPk(req.decodedToken.id)
+  if (!user) {
+    return res.status(401).json({ error: 'User not found' })
+  }
+
+  req.user = user
+  next()
+}
+
 
 router.get('/', async (req, res) => {
   const blogs = await Blog.findAll()
   res.json(blogs)
 })
 
-router.post('/', tokenExtractor, async (req, res) => {
-  const user = await User.findByPk(req.decodedToken.id)
-  const blog = await Blog.create({ ...req.body, userId: user.id })
+router.post('/', tokenExtractor, authChecker, async (req, res) => {
+  const blog = await Blog.create({ ...req.body, userId: req.user.id })
   res.json(blog)
 })
 
@@ -50,7 +60,10 @@ router.put('/:id', blogFinder, async (req, res) => {
   res.json(updatedBlog)
 })
 
-router.delete('/:id', blogFinder, async (req, res) => {
+router.delete('/:id', blogFinder, tokenExtractor, authChecker, async (req, res) => {
+  if (req.blog.userId !== req.user.id) {
+    return res.status(403).json({ error: 'Unauthorized' })
+  }
   await req.blog.destroy()
   res.status(204).end()
 })
