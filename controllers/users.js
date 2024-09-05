@@ -27,7 +27,17 @@ router.get('/:id', async (req, res) => {
     res.json({
       username: user.username,
       name: user.name,
-      readings: user.blogs
+      readings: user.blogs.map(blog => ({
+        title: blog.title,
+        author: blog.author,
+        url: blog.url,
+        likes: blog.likes,
+        year: blog.year,
+        readinglists: {
+          read: blog.readingList.read,
+          id: blog.readingList.id,
+        }
+      }))
     })
   } else {
     res.status(404).end()
