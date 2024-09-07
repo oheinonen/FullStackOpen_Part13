@@ -33,6 +33,11 @@ const authChecker = async (req, res, next) => {
   }
 
   if (user.isDisabled) {
+    await Session.destroy({
+      where: {
+        userId: user.id
+      }
+    })
     return res.status(401).json({ error: 'User is disabled' })
   }
   req.user = user
